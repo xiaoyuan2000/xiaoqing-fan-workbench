@@ -1,0 +1,34 @@
+{
+  "name": "小晴追星专属工作台",
+  "short_name": "小晴追星",
+  "description": "记录每一次心动的瞬间 - 演唱会/音乐节/周边/专辑/支出/日记",
+  "start_url": "./小晴追星专属工作台.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef8f4",
+  "theme_color": "#00b894",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["lifestyle", "entertainment", "productivity"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
