@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安装小晴追星工作台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", sans-serif;
+    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #fff;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 28px 24px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    color: #1a3a30;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+  }
+  .app-icon {
+    width: 80px; height: 80px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #00b894, #00855a);
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: 0 6px 20px rgba(0,184,148,0.4);
+  }
+  .card h1 { font-size: 20px; margin-bottom: 4px; }
+  .card .desc { font-size: 13px; color: #6a9b8a; margin-bottom: 20px; }
+  .open-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #00b894, #00855a);
+    color: #fff;
+    text-decoration: none;
+    padding: 14px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .guide { text-align: left; background: #f8f5ff; border-radius: 12px; padding: 14px; }
+  .guide h3 { font-size: 13px; color: #00b894; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+  .guide .step { font-size: 12.5px; color: #3a6b5c; margin-bottom: 8px; line-height: 1.5; padding-left: 22px; position: relative; }
+  .guide .step::before { content: counter(s); counter-increment: s; position: absolute; left: 0; top: 0; width: 16px; height: 16px; background: #00b894; color: #fff; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .guide { counter-reset: s; }
+  .guide .os-tab { display: flex; gap: 8px; margin-bottom: 12px; }
+  .guide .os-tab button { flex: 1; padding: 8px; border: 1.5px solid #d4ebe2; background: #fff; border-radius: 10px; font-size: 12px; cursor: pointer; color: #6a9b8a; }
+  .guide .os-tab button.active { border-color: #00b894; color: #00b894; font-weight: 700; background: #eef8f4; }
+  .guide .os-content { display: none; }
+  .guide .os-content.active { display: block; }
+  .tip { font-size: 11px; color: #7a9b8e; margin-top: 14px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="app-icon">💫</div>
+  <h1>小晴追星专属工作台</h1>
+  <p class="desc">记录每一次心动的瞬间</p>
+  <a class="open-btn" href="小晴追星专属工作台.html">🚀 立即打开工作台</a>
+  <div class="guide">
+    <h3>📲 添加到主屏幕（像 App 一样使用）</h3>
+    <div class="os-tab">
+      <button class="active" onclick="switchOS('android')">🤖 安卓</button>
+      <button onclick="switchOS('ios')">🍎 iPhone</button>
+    </div>
+    <div class="os-content active" id="os-android">
+      <div class="step">打开工作台后，点击浏览器右上角「⋮」菜单</div>
+      <div class="step">选择「添加到主屏幕」或「安装应用」</div>
+      <div class="step">确认后，桌面会出现「小晴追星」图标</div>
+      <div class="step">点击图标即可全屏使用，像 App 一样！</div>
+    </div>
+    <div class="os-content" id="os-ios">
+      <div class="step">使用 Safari 打开工作台（必须用 Safari）</div>
+      <div class="step">点击底部「分享」按钮（方块+向上箭头）</div>
+      <div class="step">滑动选择「添加到主屏幕」</div>
+      <div class="step">点击「添加」，桌面出现「小晴追星」图标</div>
+      <div class="step">点击图标即可全屏使用，无浏览器边框！</div>
+    </div>
+  </div>
+  <p class="tip">💡 安装后支持离线使用，数据保存在本地手机中，安全隐私。支持演唱会/音乐节/周边/专辑/支出/日记六大板块。</p>
+</div>
+<script>
+function switchOS(os) {
+  document.querySelectorAll('.os-tab button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.os-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('os-' + os).classList.add('active');
+}
+</script>
+</body>
+</html>
