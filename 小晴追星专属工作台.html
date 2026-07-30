@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>小晴追星专属工作台</title>
+<!-- PWA 配置 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00b894">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="小晴追星">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --primary: #00b894;
+    --primary-dark: #00855a;
+    --accent: #55c5a6;
+    --bg: #eef8f4;
+    --card: #ffffff;
+    --text: #1a3a30;
+    --text-light: #6a9b8a;
+    --border: #d4ebe2;
+    --shadow: 0 4px 16px rgba(0, 184, 148, 0.08);
+    --shadow-hover: 0 6px 24px rgba(0, 184, 148, 0.15);
+  }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    background: linear-gradient(135deg, #eef8f4 0%, #e0f5ec 100%);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    padding-bottom: 72px;
+    overflow-x: hidden;
+  }
+  /* 顶部标题栏 */
+  .header {
+    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+    color: #fff;
+    padding: 20px 16px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0, 184, 148, 0.3);
+  }
+  .header h1 {
+    font-size: 19px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+  }
+  .header .sub {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .header .star {
+    display: inline-block;
+    animation: twinkle 2s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.9); }
+  }
+  /* 底部 Tab 导航 */
+  .tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    padding: 6px 2px env(safe-area-inset-bottom, 6px);
+    box-shadow: 0 -2px 20px rgba(0, 184, 148, 0.1);
+    z-index: 200;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 2px;
+    cursor: pointer;
+    transition: all 0.25s;
+    border-radius: 10px;
+    margin: 0 2px;
+  }
+  .tab .ico { font-size: 20px; line-height: 1.2; display: block; transition: transform 0.25s; }
+  .tab .lbl { font-size: 9.5px; color: var(--text-light); margin-top: 2px; font-weight: 500; }
+  .tab.active .ico { transform: translateY(-2px) scale(1.15); }
+  .tab.active .lbl { color: var(--primary); font-weight: 600; }
+  .tab.active { background: linear-gradient(180deg, rgba(0,184,148,0.08) 0%, transparent 100%); }
+  /* 页面容器 */
+  .page {
+    display: none;
+    padding: 14px 12px 20px;
+    animation: fadeIn 0.35s ease;
+  }
+  .page.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  /* 区块标题 */
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 16px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+  }
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 15px;
+    background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+    border-radius: 2px;
+  }
+  /* 卡片 */
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+  }
+  /* 统计卡片 */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 12px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    opacity: 0.12;
+  }
+  .stat-card.green1::before { background: var(--primary); }
+  .stat-card.green2::before { background: var(--accent); }
+  .stat-card.green3::before { background: var(--primary-dark); }
+  .stat-card.green4::before { background: #20c997; }
+  .stat-card .num {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  .stat-card .lbl {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+  .stat-card .emoji { font-size: 14px; }
+  /* 大统计卡 */
+  .big-stat {
+    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+    border-radius: 16px;
+    padding: 18px;
+    color: #fff;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 20px rgba(0, 184, 148, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .big-stat::after {
+    content: '✨';
+    position: absolute;
+    right: 14px; top: 14px;
+    font-size: 28px;
+    opacity: 0.4;
+    animation: twinkle 2.5s ease-in-out infinite;
+  }
+  .big-stat .num { font-size: 38px; font-weight: 800; line-height: 1.1; }
+  .big-stat .lbl { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+  /* 表格 */
+  .table-wrap {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  thead {
+    background: linear-gradient(135deg, rgba(0,184,148,0.08), rgba(0,133,90,0.08));
+  }
+  th {
+    padding: 10px 6px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 9px 6px;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+    word-break: break-word;
+  }
+  tbody tr { transition: background 0.2s; }
+  tbody tr:active { background: rgba(0, 184, 148, 0.04); }
+  .empty {
+    text-align: center;
+    padding: 28px 12px;
+    color: var(--text-light);
+    font-size: 13px;
+  }
+  .empty .ico { font-size: 32px; display: block; margin-bottom: 6px; opacity: 0.5; }
+  /* 支出明细表 */
+  .expense-table th, .expense-table td {
+    font-size: 11.5px;
+    padding: 8px 4px;
+    text-align: center;
+  }
+  .expense-table th { font-size: 10.5px; }
+  .expense-table .col-date { white-space: nowrap; }
+  .expense-table .col-name { text-align: left; min-width: 70px; }
+  .expense-table .col-total { font-weight: 700; color: var(--primary); }
+  .expense-table tfoot td {
+    background: linear-gradient(135deg, rgba(0,184,148,0.1), rgba(0,133,90,0.1));
+    font-weight: 700;
+    color: var(--primary);
+    border-top: 2px solid var(--primary);
+  }
+  /* 按钮 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: #fff;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 3px 12px rgba(0, 184, 148, 0.3);
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-block { width: 100%; padding: 12px; font-size: 14px; }
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+    box-shadow: none;
+  }
+  .btn-sm { padding: 5px 10px; font-size: 11px; border-radius: 14px; }
+  .btn-del {
+    background: #ff4d6d;
+    box-shadow: 0 2px 8px rgba(255, 77, 109, 0.3);
+  }
+  /* 操作行 */
+  .row-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .row-actions .hint { font-size: 11px; color: var(--text-light); }
+  /* 弹窗 */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 45, 68, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-mask.show { display: flex; animation: fadeMask 0.25s; }
+  @keyframes fadeMask { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #fff;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px 20px 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .form-group { margin-bottom: 12px; }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .form-group input, .form-group textarea, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #f0faf6;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .modal-actions .btn { flex: 1; }
+  /* 日记 */
+  .diary-item {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    border-left: 3px solid var(--primary);
+  }
+  .diary-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .diary-date { font-size: 12px; color: var(--primary); font-weight: 600; }
+  .diary-mood { font-size: 18px; }
+  .diary-body { font-size: 13.5px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+  .diary-del {
+    margin-top: 8px;
+    text-align: right;
+  }
+  /* 心情选择 */
+  .mood-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mood-picker span {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .mood-picker span.selected { background: rgba(0, 184, 148, 0.15); }
+  /* 提示 */
+  .toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(45, 45, 68, 0.92);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    z-index: 400;
+    opacity: 0;
+    transition: opacity 0.25s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  /* 标签 */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+  .tag-green1 { background: rgba(0,184,148,0.12); color: var(--primary); }
+  .tag-green2 { background: rgba(85,197,166,0.15); color: #00855a; }
+  .tag-green3 { background: rgba(0,133,90,0.12); color: var(--primary-dark); }
+  .tag-green4 { background: rgba(32,201,151,0.15); color: #00b894; }
+  .tag-green5 { background: rgba(32,201,151,0.1); color: #00855a; }
+  .price { color: #00855a; font-weight: 600; }
+  /* PWA 安装横幅 */
+  .install-banner {
+    position: fixed;
+    bottom: 76px;
+    left: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 6px 24px rgba(0, 184, 148, 0.35);
+    z-index: 250;
+    animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .install-banner.show { display: flex; }
+  .install-banner .ib-icon { font-size: 28px; flex-shrink: 0; }
+  .install-banner .ib-text { flex: 1; }
+  .install-banner .ib-title { font-size: 13px; font-weight: 700; }
+  .install-banner .ib-sub { font-size: 11px; opacity: 0.9; margin-top: 1px; }
+  .install-banner .ib-btn {
+    background: #fff;
+    color: var(--primary);
+    border: none;
+    padding: 7px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .install-banner .ib-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 0 2px;
+  }
+  /* 全屏模式适配 */
+  body.standalone .header { padding-top: calc(20px + env(safe-area-inset-top)); }
+  body.standalone .tabbar { padding-bottom: env(safe-area-inset-bottom); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💫 小晴追星专属工作台</h1>
+  <div class="sub">✨ 记录每一次心动的瞬间 · <span class="star">🌟</span></div>
+</div>
+
+<!-- ===== 1. 演唱会记录 ===== -->
+<div class="page active" id="page-concert">
+  <div class="big-stat">
+    <div class="num" id="concert-count">0</div>
+    <div class="lbl">🎤 累计演唱会次数</div>
+  </div>
+
+  <div class="row-actions">
+    <span class="hint">👇 演唱会记录列表</span>
+    <button class="btn btn-sm" onclick="openModal('concert')">+ 新增</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>🎤 巡演</th>
+          <th>📅 日期</th>
+          <th>📝 备注</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="concert-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== 2. 音乐节记录 ===== -->
+<div class="page" id="page-festival">
+  <div class="big-stat" style="background:linear-gradient(135deg,#55c5a6 0%,#00b894 100%);">
+    <div class="num" id="festival-count">0</div>
+    <div class="lbl">🎶 累计音乐节次数</div>
+  </div>
+  <div class="row-actions">
+    <span class="hint">👇 音乐节记录列表</span>
+    <button class="btn btn-sm" onclick="openModal('festival')">+ 新增</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>🎪 音乐节</th>
+          <th>📅 日期</th>
+          <th>📝 备注</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="festival-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== 3. 周边藏品记录 ===== -->
+<div class="page" id="page-merch">
+  <div class="stat-grid">
+    <div class="stat-card green2">
+      <div class="num" id="merch-count">0</div>
+      <div class="lbl">🎁 藏品种类</div>
+    </div>
+    <div class="stat-card green4">
+      <div class="num" id="merch-total">0</div>
+      <div class="lbl">💰 累计花费</div>
+    </div>
+  </div>
+  <div class="row-actions">
+    <span class="hint">👇 周边藏品列表</span>
+    <button class="btn btn-sm" onclick="openModal('merch')">+ 新增</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>分类</th>
+          <th>数量×单价</th>
+          <th>渠道</th>
+          <th>备注</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="merch-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== 4. 实体专辑收藏库 ===== -->
+<div class="page" id="page-album">
+  <div class="stat-grid">
+    <div class="stat-card green3">
+      <div class="num" id="album-count">0</div>
+      <div class="lbl">💿 专辑种类</div>
+    </div>
+    <div class="stat-card green1">
+      <div class="num" id="album-total">0</div>
+      <div class="lbl">💰 累计花费</div>
+    </div>
+  </div>
+  <div class="row-actions">
+    <span class="hint">👇 实体专辑列表</span>
+    <button class="btn btn-sm" onclick="openModal('album')">+ 新增</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>名称</th>
+          <th>分类</th>
+          <th>数量×单价</th>
+          <th>渠道</th>
+          <th>备注</th>
+          <th style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="album-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== 5. 线下支出 ===== -->
+<div class="page" id="page-expense">
+  <div class="big-stat" style="background:linear-gradient(135deg,#20c997 0%,#00b894 100%);">
+    <div class="num">¥<span id="exp-total">0</span></div>
+    <div class="lbl">💰 线下追星总支出</div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card green2">
+      <div class="num" id="exp-ticket">0</div>
+      <div class="lbl">🎫 门票合计</div>
+    </div>
+    <div class="stat-card green3">
+      <div class="num" id="exp-transport">0</div>
+      <div class="lbl">🚅 交通合计</div>
+    </div>
+    <div class="stat-card green1">
+      <div class="num" id="exp-hotel">0</div>
+      <div class="lbl">🏨 住宿合计</div>
+    </div>
+    <div class="stat-card green4">
+      <div class="num" id="exp-merch">0</div>
+      <div class="lbl">🎧 周边合计</div>
+    </div>
+    <div class="stat-card green2" style="grid-column:span 2;">
+      <div class="num" id="exp-other">0</div>
+      <div class="lbl">🧧 其他合计（物料、衣服等）</div>
+    </div>
+  </div>
+
+  <div class="row-actions">
+    <span class="hint">📋 支出明细表</span>
+    <button class="btn btn-sm" onclick="openModal('expense')">+ 新增</button>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto;">
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th class="col-date">📅 日期</th>
+          <th class="col-name">名称</th>
+          <th>🎫<br>门票</th>
+          <th>🚅<br>交通</th>
+          <th>🏨<br>住宿</th>
+          <th>🎧<br>周边</th>
+          <th>🧧<br>其他</th>
+          <th>📝<br>备注</th>
+          <th class="col-total">合计</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="expense-body"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="text-align:right;">📌 合计</td>
+          <td id="sum-ticket">0</td>
+          <td id="sum-transport">0</td>
+          <td id="sum-hotel">0</td>
+          <td id="sum-merch">0</td>
+          <td id="sum-other">0</td>
+          <td></td>
+          <td id="sum-total">0</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 6. 追星日记 ===== -->
+<div class="page" id="page-diary">
+  <div class="row-actions">
+    <span class="hint">📝 记录每一次心动时刻</span>
+    <button class="btn btn-sm" onclick="openModal('diary')">+ 写日记</button>
+  </div>
+  <div id="diary-list"></div>
+</div>
+
+<!-- ===== 底部 Tab ===== -->
+<div class="tabbar">
+  <div class="tab active" onclick="switchPage('concert', this)">
+    <span class="ico">🎤</span><div class="lbl">演唱会</div>
+  </div>
+  <div class="tab" onclick="switchPage('festival', this)">
+    <span class="ico">🎶</span><div class="lbl">音乐节</div>
+  </div>
+  <div class="tab" onclick="switchPage('merch', this)">
+    <span class="ico">🎁</span><div class="lbl">周边</div>
+  </div>
+  <div class="tab" onclick="switchPage('album', this)">
+    <span class="ico">💿</span><div class="lbl">专辑</div>
+  </div>
+  <div class="tab" onclick="switchPage('expense', this)">
+    <span class="ico">💰</span><div class="lbl">支出</div>
+  </div>
+  <div class="tab" onclick="switchPage('diary', this)">
+    <span class="ico">📝</span><div class="lbl">日记</div>
+  </div>
+</div>
+
+<!-- ===== 弹窗 ===== -->
+<div class="modal-mask" id="modal-mask" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- PWA 安装提示横幅 -->
+<div class="install-banner" id="install-banner">
+  <span class="ib-icon">📲</span>
+  <div class="ib-text">
+    <div class="ib-title">添加到主屏幕</div>
+    <div class="ib-sub">像 App 一样全屏使用，离线也能打开</div>
+  </div>
+  <button class="ib-btn" onclick="doInstall()">安装</button>
+  <button class="ib-close" onclick="dismissInstall()">×</button>
+</div>
+
+<script>
+// ===== 数据存储 =====
+const STORE_KEY = 'xiaoqing_fan_workbench_v1';
+let store = {
+  concert: [],
+  festival: [],
+  merch: [],
+  album: [],
+  expense: [],
+  diary: []
+};
+
+// 预置示例数据（首次打开）
+const SAMPLE = {
+  concert: [
+    { tour: 'XX歌手「星河」巡演·上海站', date: '2024-03-16', note: '内场V1区，第一次见到本人！' },
+    { tour: 'XX歌手「星河」巡演·广州站', date: '2024-06-22', note: '和闺蜜一起，氛围超好' }
+  ],
+  festival: [
+    { name: '草莓音乐节·北京站', date: '2024-05-01', note: '雨天也超燃' }
+  ],
+  merch: [
+    { name: '官方应援棒', cat: '应援物', qty: 1, price: 198, channel: '官方商城', note: '二代发光款' },
+    { name: '明星同款卫衣', cat: '服饰', qty: 1, price: 359, channel: '旗舰店', note: '黑色M码' }
+  ],
+  album: [
+    { name: '《星河》豪华版', cat: '正规一辑', qty: 1, price: 168, channel: '官方商城', note: '含小卡&海报' },
+    { name: '《光年》普通版', cat: '迷你专', qty: 2, price: 88, channel: '线下签售', note: '两张不同封面' }
+  ],
+  expense: [
+    { date: '2024-03-16', name: '上海演唱会', ticket: 1280, transport: 560, hotel: 420, merch: 350, other: 80, note: '高铁往返+两晚住宿' },
+    { date: '2024-06-22', name: '广州演唱会', ticket: 980, transport: 880, hotel: 520, merch: 200, other: 120, note: '飞机往返' }
+  ],
+  diary: [
+    { date: '2024-03-16', mood: '🥰', body: '今天终于见到了本命！安可环节哭成狗，他笑起来真的好温柔。内场距离超近，每一首都跟着唱，嗓子哑了也值了！' },
+    { date: '2024-05-01', mood: '🤩', body: '草莓音乐节太嗨了，虽然下着雨但氛围超好，他在台上淋雨唱歌的样子帅炸了。' }
+  ]
+};
+
+function loadStore() {
+  try {
+    const saved = localStorage.getItem(STORE_KEY);
+    if (saved) {
+      store = JSON.parse(saved);
+    } else {
+      store = JSON.parse(JSON.stringify(SAMPLE));
+      saveStore();
+    }
+  } catch (e) {
+    store = JSON.parse(JSON.stringify(SAMPLE));
+  }
+}
+function saveStore() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(store));
+}
+
+// ===== 页面切换 =====
+function switchPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===== 弹窗 =====
+function openModal(type, id) {
+  const modal = document.getElementById('modal-content');
+  const mask = document.getElementById('modal-mask');
+  let html = '';
+  const editing = (id !== undefined) ? store[type][id] : null;
+
+  if (type === 'concert') {
+    html = `
+      <div class="modal-title">🎤 新增演唱会记录</div>
+      <div class="form-group"><label>巡演名称</label><input id="f-tour" value="${editing?editing.tour:''}" placeholder="如：XX歌手「星河」巡演·上海站"></div>
+      <div class="form-group"><label>日期</label><input type="date" id="f-date" value="${editing?editing.date:''}"></div>
+      <div class="form-group"><label>备注</label><textarea id="f-note" placeholder="座位、心情、趣事...">${editing?editing.note:''}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveItem('concert', ${id!==undefined?id:'null'})">保存</button>
+      </div>`;
+  } else if (type === 'festival') {
+    html = `
+      <div class="modal-title">🎶 新增音乐节记录</div>
+      <div class="form-group"><label>音乐节名称</label><input id="f-name" value="${editing?editing.name:''}" placeholder="如：草莓音乐节·北京站"></div>
+      <div class="form-group"><label>日期</label><input type="date" id="f-date" value="${editing?editing.date:''}"></div>
+      <div class="form-group"><label>备注</label><textarea id="f-note" placeholder="阵容、氛围、趣事...">${editing?editing.note:''}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveItem('festival', ${id!==undefined?id:'null'})">保存</button>
+      </div>`;
+  } else if (type === 'merch' || type === 'album') {
+    const title = type === 'merch' ? '🎁 新增周边藏品' : '💿 新增实体专辑';
+    const nameLabel = type === 'merch' ? '藏品名称' : '专辑名称';
+    html = `
+      <div class="modal-title">${title}</div>
+      <div class="form-group"><label>${nameLabel}</label><input id="f-name" value="${editing?editing.name:''}" placeholder="名称"></div>
+      <div class="form-group"><label>分类</label>
+        <select id="f-cat">
+          ${type === 'merch'
+            ? ['应援物','服饰','海报','小卡','文具','其他'].map(c => `<option ${editing&&editing.cat===c?'selected':''}>${c}</option>`).join('')
+            : ['正规一辑','迷你专','单曲','精选集','限量版','其他'].map(c => `<option ${editing&&editing.cat===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>数量</label><input type="number" id="f-qty" value="${editing?editing.qty:1}" min="1"></div>
+        <div class="form-group"><label>单价(¥)</label><input type="number" id="f-price" value="${editing?editing.price:''}" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label>渠道</label><input id="f-channel" value="${editing?editing.channel:''}" placeholder="官方商城/旗舰店/线下/二手"></div>
+      <div class="form-group"><label>备注</label><textarea id="f-note" placeholder="版本、成色、小卡情况...">${editing?editing.note:''}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveItem('${type}', ${id!==undefined?id:'null'})">保存</button>
+      </div>`;
+  } else if (type === 'expense') {
+    html = `
+      <div class="modal-title">💰 新增线下支出</div>
+      <div class="form-row">
+        <div class="form-group"><label>日期</label><input type="date" id="f-date" value="${editing?editing.date:''}"></div>
+        <div class="form-group"><label>名称</label><input id="f-name" value="${editing?editing.name:''}" placeholder="如：上海演唱会"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>🎫 门票</label><input type="number" id="f-ticket" value="${editing?editing.ticket:0}" placeholder="0"></div>
+        <div class="form-group"><label>🚅 交通</label><input type="number" id="f-transport" value="${editing?editing.transport:0}" placeholder="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>🏨 住宿</label><input type="number" id="f-hotel" value="${editing?editing.hotel:0}" placeholder="0"></div>
+        <div class="form-group"><label>🎧 周边</label><input type="number" id="f-merch" value="${editing?editing.merch:0}" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label>🧧 其他（物料、衣服等）</label><input type="number" id="f-other" value="${editing?editing.other:0}" placeholder="0"></div>
+      <div class="form-group"><label>📝 备注</label><textarea id="f-note" placeholder="说明...">${editing?editing.note:''}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveItem('expense', ${id!==undefined?id:'null'})">保存</button>
+      </div>`;
+  } else if (type === 'diary') {
+    html = `
+      <div class="modal-title">📝 写追星日记</div>
+      <div class="form-group"><label>日期</label><input type="date" id="f-date" value="${editing?editing.date:new Date().toISOString().slice(0,10)}"></div>
+      <div class="form-group"><label>心情</label>
+        <div class="mood-picker" id="mood-picker">
+          ${['🥰','🤩','😍','😭','🥳','😴','🤔','😡'].map(m => `<span onclick="pickMood(this)" data-m="${m}" class="${editing&&editing.mood===m?'selected':''}">${m}</span>`).join('')}
+        </div>
+        <input type="hidden" id="f-mood" value="${editing?editing.mood:'🥰'}">
+      </div>
+      <div class="form-group"><label>正文</label><textarea id="f-body" style="min-height:140px;" placeholder="今天发生了什么心动的事...">${editing?editing.body:''}</textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button class="btn" onclick="saveItem('diary', ${id!==undefined?id:'null'})">保存</button>
+      </div>`;
+  }
+  modal.innerHTML = html;
+  mask.classList.add('show');
+}
+
+function pickMood(el) {
+  document.querySelectorAll('#mood-picker span').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('f-mood').value = el.dataset.m;
+}
+
+function closeModal(e) {
+  if (e && e.target.id !== 'modal-mask' && e.type === 'click') return;
+  document.getElementById('modal-mask').classList.remove('show');
+}
+
+function saveItem(type, id) {
+  let item = {};
+  if (type === 'concert') {
+    item = { tour: v('f-tour'), date: v('f-date'), note: v('f-note') };
+    if (!item.tour) return toast('请填写巡演名称');
+  } else if (type === 'festival') {
+    item = { name: v('f-name'), date: v('f-date'), note: v('f-note') };
+    if (!item.name) return toast('请填写音乐节名称');
+  } else if (type === 'merch' || type === 'album') {
+    item = { name: v('f-name'), cat: v('f-cat'), qty: parseInt(v('f-qty')||1), price: parseFloat(v('f-price')||0), channel: v('f-channel'), note: v('f-note') };
+    if (!item.name) return toast('请填写名称');
+  } else if (type === 'expense') {
+    item = { date: v('f-date'), name: v('f-name'), ticket: parseFloat(v('f-ticket')||0), transport: parseFloat(v('f-transport')||0), hotel: parseFloat(v('f-hotel')||0), merch: parseFloat(v('f-merch')||0), other: parseFloat(v('f-other')||0), note: v('f-note') };
+    if (!item.name) return toast('请填写名称');
+  } else if (type === 'diary') {
+    item = { date: v('f-date'), mood: v('f-mood'), body: v('f-body') };
+    if (!item.body) return toast('请写点什么吧');
+  }
+  if (id !== null && id !== undefined) {
+    store[type][id] = item;
+  } else {
+    store[type].push(item);
+  }
+  saveStore();
+  document.getElementById('modal-mask').classList.remove('show');
+  renderAll();
+  toast('✅ 保存成功');
+}
+
+function v(id) { return document.getElementById(id).value; }
+
+function delItem(type, id) {
+  if (!confirm('确定删除这条记录吗？')) return;
+  store[type].splice(id, 1);
+  saveStore();
+  renderAll();
+  toast('🗑️ 已删除');
+}
+
+function editItem(type, id) { openModal(type, id); }
+
+// ===== 渲染 =====
+function renderAll() {
+  renderConcert();
+  renderFestival();
+  renderMerch();
+  renderAlbum();
+  renderExpense();
+  renderDiary();
+}
+
+function emptyRow(cols, text) {
+  return `<tr><td colspan="${cols}" class="empty"><span class="ico">📭</span>${text}</td></tr>`;
+}
+
+function renderConcert() {
+  const body = document.getElementById('concert-body');
+  document.getElementById('concert-count').textContent = store.concert.length;
+  if (!store.concert.length) { body.innerHTML = emptyRow(4, '还没有演唱会记录，快去添加吧～'); return; }
+  body.innerHTML = store.concert.map((c, i) => `
+    <tr>
+      <td><strong>${esc(c.tour)}</strong></td>
+      <td class="col-date" style="white-space:nowrap;">${esc(c.date)}</td>
+      <td style="color:var(--text-light)">${esc(c.note||'-')}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-outline" style="padding:3px 7px;font-size:10px;" onclick="editItem('concert',${i})">✏️</button>
+          <button class="btn btn-sm btn-del" style="padding:3px 7px;font-size:10px;" onclick="delItem('concert',${i})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderFestival() {
+  const body = document.getElementById('festival-body');
+  document.getElementById('festival-count').textContent = store.festival.length;
+  if (!store.festival.length) { body.innerHTML = emptyRow(4, '还没有音乐节记录，快去添加吧～'); return; }
+  body.innerHTML = store.festival.map((f, i) => `
+    <tr>
+      <td><strong>${esc(f.name)}</strong></td>
+      <td style="white-space:nowrap;">${esc(f.date)}</td>
+      <td style="color:var(--text-light)">${esc(f.note||'-')}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-outline" style="padding:3px 7px;font-size:10px;" onclick="editItem('festival',${i})">✏️</button>
+          <button class="btn btn-sm btn-del" style="padding:3px 7px;font-size:10px;" onclick="delItem('festival',${i})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderMerch() {
+  const body = document.getElementById('merch-body');
+  document.getElementById('merch-count').textContent = store.merch.length;
+  const total = store.merch.reduce((s, m) => s + m.qty * m.price, 0);
+  document.getElementById('merch-total').textContent = '¥' + total;
+  if (!store.merch.length) { body.innerHTML = emptyRow(6, '还没有周边藏品，快去添加吧～'); return; }
+  body.innerHTML = store.merch.map((m, i) => `
+    <tr>
+      <td><strong>${esc(m.name)}</strong></td>
+      <td><span class="tag tag-green2">${esc(m.cat)}</span></td>
+      <td><span class="price">${m.qty}×¥${m.price}</span></td>
+      <td>${esc(m.channel||'-')}</td>
+      <td style="color:var(--text-light)">${esc(m.note||'-')}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-outline" style="padding:3px 7px;font-size:10px;" onclick="editItem('merch',${i})">✏️</button>
+          <button class="btn btn-sm btn-del" style="padding:3px 7px;font-size:10px;" onclick="delItem('merch',${i})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderAlbum() {
+  const body = document.getElementById('album-body');
+  document.getElementById('album-count').textContent = store.album.length;
+  const total = store.album.reduce((s, m) => s + m.qty * m.price, 0);
+  document.getElementById('album-total').textContent = '¥' + total;
+  if (!store.album.length) { body.innerHTML = emptyRow(6, '还没有实体专辑，快去添加吧～'); return; }
+  body.innerHTML = store.album.map((m, i) => `
+    <tr>
+      <td><strong>${esc(m.name)}</strong></td>
+      <td><span class="tag tag-green3">${esc(m.cat)}</span></td>
+      <td><span class="price">${m.qty}×¥${m.price}</span></td>
+      <td>${esc(m.channel||'-')}</td>
+      <td style="color:var(--text-light)">${esc(m.note||'-')}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-outline" style="padding:3px 7px;font-size:10px;" onclick="editItem('album',${i})">✏️</button>
+          <button class="btn btn-sm btn-del" style="padding:3px 7px;font-size:10px;" onclick="delItem('album',${i})">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderExpense() {
+  const body = document.getElementById('expense-body');
+  let sTicket=0, sTrans=0, sHotel=0, sMerch=0, sOther=0, sTotal=0;
+  store.expense.forEach(e => {
+    sTicket += e.ticket||0;
+    sTrans += e.transport||0;
+    sHotel += e.hotel||0;
+    sMerch += e.merch||0;
+    sOther += e.other||0;
+    sTotal += (e.ticket||0)+(e.transport||0)+(e.hotel||0)+(e.merch||0)+(e.other||0);
+  });
+  document.getElementById('exp-total').textContent = sTotal;
+  document.getElementById('exp-ticket').textContent = '¥' + sTicket;
+  document.getElementById('exp-transport').textContent = '¥' + sTrans;
+  document.getElementById('exp-hotel').textContent = '¥' + sHotel;
+  document.getElementById('exp-merch').textContent = '¥' + sMerch;
+  document.getElementById('exp-other').textContent = '¥' + sOther;
+  document.getElementById('sum-ticket').textContent = '¥' + sTicket;
+  document.getElementById('sum-transport').textContent = '¥' + sTrans;
+  document.getElementById('sum-hotel').textContent = '¥' + sHotel;
+  document.getElementById('sum-merch').textContent = '¥' + sMerch;
+  document.getElementById('sum-other').textContent = '¥' + sOther;
+  document.getElementById('sum-total').textContent = '¥' + sTotal;
+  if (!store.expense.length) { body.innerHTML = emptyRow(10, '还没有支出记录，快去添加吧～'); return; }
+  body.innerHTML = store.expense.map((e, i) => {
+    const total = (e.ticket||0)+(e.transport||0)+(e.hotel||0)+(e.merch||0)+(e.other||0);
+    return `
+    <tr>
+      <td class="col-date" style="white-space:nowrap;">${esc(e.date)}</td>
+      <td class="col-name" style="text-align:left;"><strong>${esc(e.name)}</strong></td>
+      <td>${e.ticket? '¥'+e.ticket : '-'}</td>
+      <td>${e.transport? '¥'+e.transport : '-'}</td>
+      <td>${e.hotel? '¥'+e.hotel : '-'}</td>
+      <td>${e.merch? '¥'+e.merch : '-'}</td>
+      <td>${e.other? '¥'+e.other : '-'}</td>
+      <td style="color:var(--text-light);font-size:10.5px;">${esc(e.note||'-')}</td>
+      <td class="col-total">¥${total}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-sm btn-outline" style="padding:3px 6px;font-size:10px;" onclick="editItem('expense',${i})">✏️</button>
+          <button class="btn btn-sm btn-del" style="padding:3px 6px;font-size:10px;" onclick="delItem('expense',${i})">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDiary() {
+  const list = document.getElementById('diary-list');
+  if (!store.diary.length) {
+    list.innerHTML = `<div class="card" style="text-align:center;color:var(--text-light);padding:32px;"><span style="font-size:36px;display:block;margin-bottom:8px;opacity:0.5;">📝</span>还没有日记，记录第一次心动吧～</div>`;
+    return;
+  }
+  // 按日期倒序
+  const sorted = store.diary.map((d, i) => ({...d, _id: i})).sort((a, b) => (b.date||'').localeCompare(a.date||''));
+  list.innerHTML = sorted.map(d => `
+    <div class="diary-item">
+      <div class="diary-head">
+        <span class="diary-date">📅 ${esc(d.date)}</span>
+        <span class="diary-mood">${d.mood}</span>
+      </div>
+      <div class="diary-body">${esc(d.body)}</div>
+      <div class="diary-del">
+        <button class="btn btn-sm btn-outline" onclick="editItem('diary',${d._id})">✏️ 编辑</button>
+        <button class="btn btn-sm btn-del" onclick="delItem('diary',${d._id})">🗑 删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+// ===== 初始化 =====
+loadStore();
+renderAll();
+
+// ===== PWA 安装提示 =====
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  if (!deferredPrompt) return;
+  if (localStorage.getItem('install_dismissed') === '1') return;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.classList.add('show');
+}
+
+function dismissInstall() {
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.classList.remove('show');
+  localStorage.setItem('install_dismissed', '1');
+}
+
+async function doInstall() {
+  if (!deferredPrompt) {
+    toast('请使用浏览器菜单"添加到主屏幕"');
+    return;
+  }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    toast('🎉 已添加到主屏幕');
+  }
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+}
+
+// ===== 注册 Service Worker =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('SW registered');
+    }).catch(err => console.log('SW failed:', err));
+  });
+}
+
+// ===== iOS 全屏适配 =====
+function isStandalone() {
+  return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+}
+if (isStandalone()) {
+  document.body.classList.add('standalone');
+}
+</script>
+</body>
+</html>
