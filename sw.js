@@ -1,5 +1,5 @@
 // 小晴追星专属工作台 Service Worker
-const CACHE_NAME = 'xiaoqing-fan-v2-green';
+const CACHE_NAME = 'xiaoqing-fan-v3-sidebar';
 const ASSETS = [
   './',
   './小晴追星专属工作台.html',
