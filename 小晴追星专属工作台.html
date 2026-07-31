@@ -29,40 +29,55 @@
   }
   html, body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-    background: linear-gradient(135deg, #eef8f4 0%, #e0f5ec 100%);
+    background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     font-size: 14px;
-    padding-bottom: 72px;
-    overflow-x: hidden;
   }
-  /* 顶部标题栏 */
-  .header {
-    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+  /* ===== 整体布局：左侧栏 + 右侧内容 ===== */
+  .app-layout {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* ===== 左侧导航栏 ===== */
+  .sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #00b894 0%, #00855a 100%);
     color: #fff;
-    padding: 20px 16px 18px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 4px 20px rgba(0, 184, 148, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+    z-index: 200;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
   }
-  .header h1 {
-    font-size: 19px;
-    font-weight: 600;
+  /* 侧栏 Logo 区 */
+  .sidebar-logo {
+    padding: 22px 16px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+  }
+  .sidebar-logo .logo-title {
+    font-size: 17px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 6px;
     letter-spacing: 0.5px;
   }
-  .header .sub {
-    font-size: 11px;
-    opacity: 0.85;
+  .sidebar-logo .logo-sub {
+    font-size: 10.5px;
+    opacity: 0.8;
     margin-top: 4px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
   }
-  .header .star {
+  .sidebar-logo .star {
     display: inline-block;
     animation: twinkle 2s ease-in-out infinite;
   }
@@ -70,39 +85,149 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(0.9); }
   }
-  /* 底部 Tab 导航 */
-  .tabbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    display: flex;
-    padding: 6px 2px env(safe-area-inset-bottom, 6px);
-    box-shadow: 0 -2px 20px rgba(0, 184, 148, 0.1);
-    z-index: 200;
-  }
-  .tab {
+  /* 导航菜单 */
+  .nav-menu {
     flex: 1;
-    text-align: center;
-    padding: 6px 2px;
-    cursor: pointer;
-    transition: all 0.25s;
-    border-radius: 10px;
-    margin: 0 2px;
+    overflow-y: auto;
+    padding: 10px 8px;
+    -webkit-overflow-scrolling: touch;
   }
-  .tab .ico { font-size: 20px; line-height: 1.2; display: block; transition: transform 0.25s; }
-  .tab .lbl { font-size: 9.5px; color: var(--text-light); margin-top: 2px; font-weight: 500; }
-  .tab.active .ico { transform: translateY(-2px) scale(1.15); }
-  .tab.active .lbl { color: var(--primary); font-weight: 600; }
-  .tab.active { background: linear-gradient(180deg, rgba(0,184,148,0.08) 0%, transparent 100%); }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13.5px;
+    font-weight: 500;
+    position: relative;
+  }
+  .nav-item .nav-ico {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 22px;
+    text-align: center;
+  }
+  .nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 22px;
+    background: #fff;
+    border-radius: 0 3px 3px 0;
+  }
+  /* 侧栏底部 */
+  .sidebar-footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+    font-size: 10px;
+    opacity: 0.6;
+    text-align: center;
+  }
+  /* ===== 右侧主内容区 ===== */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    background: linear-gradient(135deg, #eef8f4 0%, #e0f5ec 100%);
+    position: relative;
+  }
+  /* 手机端顶部栏（含汉堡按钮） */
+  .mobile-topbar {
+    display: none;
+    background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
+    color: #fff;
+    padding: 14px 16px;
+    padding-top: calc(14px + env(safe-area-inset-top));
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0, 184, 148, 0.25);
+  }
+  .mobile-topbar .menu-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .mobile-topbar .topbar-title {
+    font-size: 15px;
+    font-weight: 600;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  /* 遮罩层（手机端打开侧栏时） */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 150;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+  }
+  /* ===== 响应式：手机端侧栏变抽屉 ===== */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2);
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .mobile-topbar {
+      display: flex;
+    }
+  }
+  /* 全屏模式适配 */
+  body.standalone .sidebar { padding-top: env(safe-area-inset-top); }
+  body.standalone .mobile-topbar { padding-top: calc(14px + env(safe-area-inset-top)); }
   /* 页面容器 */
   .page {
     display: none;
-    padding: 14px 12px 20px;
+    padding: 18px 16px 24px;
     animation: fadeIn 0.35s ease;
+    max-width: 900px;
+    margin: 0 auto;
   }
   .page.active { display: block; }
   @keyframes fadeIn {
@@ -426,9 +551,10 @@
   /* PWA 安装横幅 */
   .install-banner {
     position: fixed;
-    bottom: 76px;
+    bottom: 16px;
     left: 12px;
     right: 12px;
+    max-width: 400px;
     background: linear-gradient(135deg, #00b894 0%, #00855a 100%);
     color: #fff;
     border-radius: 14px;
@@ -466,233 +592,249 @@
     padding: 0 2px;
   }
   /* 全屏模式适配 */
-  body.standalone .header { padding-top: calc(20px + env(safe-area-inset-top)); }
-  body.standalone .tabbar { padding-bottom: env(safe-area-inset-bottom); }
+  body.standalone .sidebar { padding-top: env(safe-area-inset-top); }
+  body.standalone .mobile-topbar { padding-top: calc(14px + env(safe-area-inset-top)); }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>💫 小晴追星专属工作台</h1>
-  <div class="sub">✨ 记录每一次心动的瞬间 · <span class="star">🌟</span></div>
-</div>
+<!-- 侧栏遮罩（手机端） -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<!-- ===== 1. 演唱会记录 ===== -->
-<div class="page active" id="page-concert">
-  <div class="big-stat">
-    <div class="num" id="concert-count">0</div>
-    <div class="lbl">🎤 累计演唱会次数</div>
-  </div>
+<div class="app-layout">
+  <!-- ===== 左侧导航栏 ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-title">💫 小晴追星</div>
+      <div class="logo-sub">✨ 记录每一次心动 · <span class="star">🌟</span></div>
+    </div>
+    <nav class="nav-menu">
+      <div class="nav-item active" onclick="switchPage('concert', this)">
+        <span class="nav-ico">🎤</span><span>演唱会记录</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('festival', this)">
+        <span class="nav-ico">🎶</span><span>音乐节记录</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('merch', this)">
+        <span class="nav-ico">🎁</span><span>周边藏品</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('album', this)">
+        <span class="nav-ico">💿</span><span>实体专辑库</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('expense', this)">
+        <span class="nav-ico">💰</span><span>线下支出</span>
+      </div>
+      <div class="nav-item" onclick="switchPage('diary', this)">
+        <span class="nav-ico">📝</span><span>追星日记</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      💚 小晴专属工作台
+    </div>
+  </aside>
 
-  <div class="row-actions">
-    <span class="hint">👇 演唱会记录列表</span>
-    <button class="btn btn-sm" onclick="openModal('concert')">+ 新增</button>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>🎤 巡演</th>
-          <th>📅 日期</th>
-          <th>📝 备注</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="concert-body"></tbody>
-    </table>
-  </div>
-</div>
+  <!-- ===== 右侧主内容区 ===== -->
+  <main class="main-content" id="main-content">
+    <!-- 手机端顶部栏 -->
+    <div class="mobile-topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">🎤 演唱会记录</div>
+    </div>
 
-<!-- ===== 2. 音乐节记录 ===== -->
-<div class="page" id="page-festival">
-  <div class="big-stat" style="background:linear-gradient(135deg,#55c5a6 0%,#00b894 100%);">
-    <div class="num" id="festival-count">0</div>
-    <div class="lbl">🎶 累计音乐节次数</div>
-  </div>
-  <div class="row-actions">
-    <span class="hint">👇 音乐节记录列表</span>
-    <button class="btn btn-sm" onclick="openModal('festival')">+ 新增</button>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>🎪 音乐节</th>
-          <th>📅 日期</th>
-          <th>📝 备注</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="festival-body"></tbody>
-    </table>
-  </div>
-</div>
+    <!-- 1. 演唱会记录 -->
+    <div class="page active" id="page-concert">
+      <div class="big-stat">
+        <div class="num" id="concert-count">0</div>
+        <div class="lbl">🎤 累计演唱会次数</div>
+      </div>
+      <div class="row-actions">
+        <span class="hint">👇 演唱会记录列表</span>
+        <button class="btn btn-sm" onclick="openModal('concert')">+ 新增</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>🎤 巡演</th>
+              <th>📅 日期</th>
+              <th>📝 备注</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="concert-body"></tbody>
+        </table>
+      </div>
+    </div>
 
-<!-- ===== 3. 周边藏品记录 ===== -->
-<div class="page" id="page-merch">
-  <div class="stat-grid">
-    <div class="stat-card green2">
-      <div class="num" id="merch-count">0</div>
-      <div class="lbl">🎁 藏品种类</div>
+    <!-- 2. 音乐节记录 -->
+    <div class="page" id="page-festival">
+      <div class="big-stat" style="background:linear-gradient(135deg,#55c5a6 0%,#00b894 100%);">
+        <div class="num" id="festival-count">0</div>
+        <div class="lbl">🎶 累计音乐节次数</div>
+      </div>
+      <div class="row-actions">
+        <span class="hint">👇 音乐节记录列表</span>
+        <button class="btn btn-sm" onclick="openModal('festival')">+ 新增</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>🎪 音乐节</th>
+              <th>📅 日期</th>
+              <th>📝 备注</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="festival-body"></tbody>
+        </table>
+      </div>
     </div>
-    <div class="stat-card green4">
-      <div class="num" id="merch-total">0</div>
-      <div class="lbl">💰 累计花费</div>
-    </div>
-  </div>
-  <div class="row-actions">
-    <span class="hint">👇 周边藏品列表</span>
-    <button class="btn btn-sm" onclick="openModal('merch')">+ 新增</button>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>名称</th>
-          <th>分类</th>
-          <th>数量×单价</th>
-          <th>渠道</th>
-          <th>备注</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="merch-body"></tbody>
-    </table>
-  </div>
-</div>
 
-<!-- ===== 4. 实体专辑收藏库 ===== -->
-<div class="page" id="page-album">
-  <div class="stat-grid">
-    <div class="stat-card green3">
-      <div class="num" id="album-count">0</div>
-      <div class="lbl">💿 专辑种类</div>
+    <!-- 3. 周边藏品记录 -->
+    <div class="page" id="page-merch">
+      <div class="stat-grid">
+        <div class="stat-card green2">
+          <div class="num" id="merch-count">0</div>
+          <div class="lbl">🎁 藏品种类</div>
+        </div>
+        <div class="stat-card green4">
+          <div class="num" id="merch-total">0</div>
+          <div class="lbl">💰 累计花费</div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <span class="hint">👇 周边藏品列表</span>
+        <button class="btn btn-sm" onclick="openModal('merch')">+ 新增</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>分类</th>
+              <th>数量×单价</th>
+              <th>渠道</th>
+              <th>备注</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="merch-body"></tbody>
+        </table>
+      </div>
     </div>
-    <div class="stat-card green1">
-      <div class="num" id="album-total">0</div>
-      <div class="lbl">💰 累计花费</div>
-    </div>
-  </div>
-  <div class="row-actions">
-    <span class="hint">👇 实体专辑列表</span>
-    <button class="btn btn-sm" onclick="openModal('album')">+ 新增</button>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>名称</th>
-          <th>分类</th>
-          <th>数量×单价</th>
-          <th>渠道</th>
-          <th>备注</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="album-body"></tbody>
-    </table>
-  </div>
-</div>
 
-<!-- ===== 5. 线下支出 ===== -->
-<div class="page" id="page-expense">
-  <div class="big-stat" style="background:linear-gradient(135deg,#20c997 0%,#00b894 100%);">
-    <div class="num">¥<span id="exp-total">0</span></div>
-    <div class="lbl">💰 线下追星总支出</div>
-  </div>
+    <!-- 4. 实体专辑收藏库 -->
+    <div class="page" id="page-album">
+      <div class="stat-grid">
+        <div class="stat-card green3">
+          <div class="num" id="album-count">0</div>
+          <div class="lbl">💿 专辑种类</div>
+        </div>
+        <div class="stat-card green1">
+          <div class="num" id="album-total">0</div>
+          <div class="lbl">💰 累计花费</div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <span class="hint">👇 实体专辑列表</span>
+        <button class="btn btn-sm" onclick="openModal('album')">+ 新增</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>分类</th>
+              <th>数量×单价</th>
+              <th>渠道</th>
+              <th>备注</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="album-body"></tbody>
+        </table>
+      </div>
+    </div>
 
-  <div class="stat-grid">
-    <div class="stat-card green2">
-      <div class="num" id="exp-ticket">0</div>
-      <div class="lbl">🎫 门票合计</div>
+    <!-- 5. 线下支出 -->
+    <div class="page" id="page-expense">
+      <div class="big-stat" style="background:linear-gradient(135deg,#20c997 0%,#00b894 100%);">
+        <div class="num">¥<span id="exp-total">0</span></div>
+        <div class="lbl">💰 线下追星总支出</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card green2">
+          <div class="num" id="exp-ticket">0</div>
+          <div class="lbl">🎫 门票合计</div>
+        </div>
+        <div class="stat-card green3">
+          <div class="num" id="exp-transport">0</div>
+          <div class="lbl">🚅 交通合计</div>
+        </div>
+        <div class="stat-card green1">
+          <div class="num" id="exp-hotel">0</div>
+          <div class="lbl">🏨 住宿合计</div>
+        </div>
+        <div class="stat-card green4">
+          <div class="num" id="exp-merch">0</div>
+          <div class="lbl">🎧 周边合计</div>
+        </div>
+        <div class="stat-card green2" style="grid-column:span 2;">
+          <div class="num" id="exp-other">0</div>
+          <div class="lbl">🧧 其他合计（物料、衣服等）</div>
+        </div>
+      </div>
+      <div class="row-actions">
+        <span class="hint">📋 支出明细表</span>
+        <button class="btn btn-sm" onclick="openModal('expense')">+ 新增</button>
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto;">
+        <table class="expense-table">
+          <thead>
+            <tr>
+              <th class="col-date">📅 日期</th>
+              <th class="col-name">名称</th>
+              <th>🎫<br>门票</th>
+              <th>🚅<br>交通</th>
+              <th>🏨<br>住宿</th>
+              <th>🎧<br>周边</th>
+              <th>🧧<br>其他</th>
+              <th>📝<br>备注</th>
+              <th class="col-total">合计</th>
+              <th style="width:36px"></th>
+            </tr>
+          </thead>
+          <tbody id="expense-body"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2" style="text-align:right;">📌 合计</td>
+              <td id="sum-ticket">0</td>
+              <td id="sum-transport">0</td>
+              <td id="sum-hotel">0</td>
+              <td id="sum-merch">0</td>
+              <td id="sum-other">0</td>
+              <td></td>
+              <td id="sum-total">0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        </div>
+      </div>
     </div>
-    <div class="stat-card green3">
-      <div class="num" id="exp-transport">0</div>
-      <div class="lbl">🚅 交通合计</div>
-    </div>
-    <div class="stat-card green1">
-      <div class="num" id="exp-hotel">0</div>
-      <div class="lbl">🏨 住宿合计</div>
-    </div>
-    <div class="stat-card green4">
-      <div class="num" id="exp-merch">0</div>
-      <div class="lbl">🎧 周边合计</div>
-    </div>
-    <div class="stat-card green2" style="grid-column:span 2;">
-      <div class="num" id="exp-other">0</div>
-      <div class="lbl">🧧 其他合计（物料、衣服等）</div>
-    </div>
-  </div>
 
-  <div class="row-actions">
-    <span class="hint">📋 支出明细表</span>
-    <button class="btn btn-sm" onclick="openModal('expense')">+ 新增</button>
-  </div>
-  <div class="table-wrap">
-    <div style="overflow-x:auto;">
-    <table class="expense-table">
-      <thead>
-        <tr>
-          <th class="col-date">📅 日期</th>
-          <th class="col-name">名称</th>
-          <th>🎫<br>门票</th>
-          <th>🚅<br>交通</th>
-          <th>🏨<br>住宿</th>
-          <th>🎧<br>周边</th>
-          <th>🧧<br>其他</th>
-          <th>📝<br>备注</th>
-          <th class="col-total">合计</th>
-          <th style="width:36px"></th>
-        </tr>
-      </thead>
-      <tbody id="expense-body"></tbody>
-      <tfoot>
-        <tr>
-          <td colspan="2" style="text-align:right;">📌 合计</td>
-          <td id="sum-ticket">0</td>
-          <td id="sum-transport">0</td>
-          <td id="sum-hotel">0</td>
-          <td id="sum-merch">0</td>
-          <td id="sum-other">0</td>
-          <td></td>
-          <td id="sum-total">0</td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
+    <!-- 6. 追星日记 -->
+    <div class="page" id="page-diary">
+      <div class="row-actions">
+        <span class="hint">📝 记录每一次心动时刻</span>
+        <button class="btn btn-sm" onclick="openModal('diary')">+ 写日记</button>
+      </div>
+      <div id="diary-list"></div>
     </div>
-  </div>
-</div>
 
-<!-- ===== 6. 追星日记 ===== -->
-<div class="page" id="page-diary">
-  <div class="row-actions">
-    <span class="hint">📝 记录每一次心动时刻</span>
-    <button class="btn btn-sm" onclick="openModal('diary')">+ 写日记</button>
-  </div>
-  <div id="diary-list"></div>
-</div>
-
-<!-- ===== 底部 Tab ===== -->
-<div class="tabbar">
-  <div class="tab active" onclick="switchPage('concert', this)">
-    <span class="ico">🎤</span><div class="lbl">演唱会</div>
-  </div>
-  <div class="tab" onclick="switchPage('festival', this)">
-    <span class="ico">🎶</span><div class="lbl">音乐节</div>
-  </div>
-  <div class="tab" onclick="switchPage('merch', this)">
-    <span class="ico">🎁</span><div class="lbl">周边</div>
-  </div>
-  <div class="tab" onclick="switchPage('album', this)">
-    <span class="ico">💿</span><div class="lbl">专辑</div>
-  </div>
-  <div class="tab" onclick="switchPage('expense', this)">
-    <span class="ico">💰</span><div class="lbl">支出</div>
-  </div>
-  <div class="tab" onclick="switchPage('diary', this)">
-    <span class="ico">📝</span><div class="lbl">日记</div>
-  </div>
+  </main>
 </div>
 
 <!-- ===== 弹窗 ===== -->
@@ -770,12 +912,41 @@ function saveStore() {
 }
 
 // ===== 页面切换 =====
+const PAGE_TITLES = {
+  concert: '🎤 演唱会记录',
+  festival: '🎶 音乐节记录',
+  merch: '🎁 周边藏品',
+  album: '💿 实体专辑库',
+  expense: '💰 线下支出',
+  diary: '📝 追星日记'
+};
 function switchPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  window.scrollTo(0, 0);
+  document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // 更新手机端顶部标题
+  const tb = document.getElementById('topbar-title');
+  if (tb) tb.textContent = PAGE_TITLES[name] || '';
+  // 滚动内容区到顶部
+  const main = document.getElementById('main-content');
+  if (main) main.scrollTop = 0;
+  // 手机端自动收起侧栏
+  closeSidebar();
+}
+
+// ===== 侧栏开关（手机端抽屉） =====
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+}
+function closeSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.remove('open');
+  ov.classList.remove('show');
 }
 
 // ===== 弹窗 =====
